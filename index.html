@@ -1,323 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Secret Cat World</title>
-<style>
-  body {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    background: #fef6f0;
-    margin: 0; padding: 20px;
-    text-align: center;
-  }
-  #unlock-section, #house, #cat-room {
-    max-width: 400px;
-    margin: 20px auto;
-    background: #fff7e6;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 0 15px #e0c097;
-  }
-  input[type=text] {
-    font-size: 18px;
-    padding: 8px;
-    width: 70%;
-    border-radius: 8px;
-    border: 2px solid #cfa878;
-  }
-  button {
-    font-size: 16px;
-    margin: 6px 4px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: none;
-    background: #d9b382;
-    color: #3f2e1e;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  button:hover {
-    background: #cfa878;
-  }
-  #cat-image {
-    width: 200px;
-    height: 200px;
-    margin: 15px 0;
-    border-radius: 12px;
-    object-fit: contain;
-  }
-  .hidden { display: none; }
-  #message {
-    margin: 10px 0 20px 0;
-    font-weight: bold;
-    min-height: 30px;
-  }
-  .cat-card {
-    display: inline-block;
-    margin: 10px;
-    cursor: pointer;
-    border-radius: 12px;
-    box-shadow: 0 0 10px #e0c097;
-    padding: 8px;
-    background: #fff1cc;
-  }
-  .cat-card img {
-    width: 100px;
-    height: 100px;
-    border-radius: 12px;
-    object-fit: contain;
-  }
-  .cat-name {
-    font-weight: bold;
-    margin-top: 6px;
-  }
-  #room-buttons button {
-    min-width: 90px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Secret Cat World - A magical, interactive cat adventure!">
+  <meta name="author" content="Empress Spark">
+  <title>Secret Cat World</title>
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/616/616408.png" type="image/png">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Comic Neue', cursive;
+      background: linear-gradient(to right, #ffe5ec, #ffc2d1);
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    h1 {
+      font-size: 3rem;
+      animation: pop 1s ease-in-out infinite alternate;
+    }
+    @keyframes pop {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+    .input-area, .actions, .cat-buttons, .cat-log {
+      margin: 1rem;
+      text-align: center;
+    }
+    input {
+      padding: 1rem;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      border: 2px solid #ff85a2;
+      width: 60%;
+      max-width: 400px;
+    }
+    button {
+      padding: 1rem 2rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+      background-color: #ff85a2;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #ff4f81;
+    }
+    .hidden {
+      display: none;
+    }
+    .cat-image {
+      width: 180px;
+      border-radius: 10px;
+      margin: 1rem;
+    }
+    .cat-log {
+      font-size: 1.1rem;
+      color: #555;
+    }
+  </style>
 </head>
 <body>
-
-<h1>Welcome to Secret Cat World</h1>
-
-<!-- Unlock new cat -->
-<section id="unlock-section">
-  <p>Enter a secret cat word to unlock a new kitty!</p>
-  <input type="text" id="secret-word" placeholder="Type a secret word" />
-  <button id="unlock-btn">Unlock</button>
-  <p id="unlock-msg"></p>
-</section>
-
-<!-- Cat House - show all cats -->
-<section id="house" class="hidden">
-  <h2>Your Cat House</h2>
-  <div id="cats-list"></div>
-  <button id="back-to-unlock" style="margin-top: 15px;">Unlock More Cats</button>
-</section>
-
-<!-- Cat Room -->
-<section id="cat-room" class="hidden">
-  <h2 id="cat-room-title"></h2>
-  <img id="cat-image" src="" alt="Your Cat" />
-  <div id="room-buttons">
-    <button data-action="feed">Feed</button>
-    <button data-action="bath">Give Bath</button>
-    <button data-action="sleep">Sleep</button>
-    <button data-action="dress">Dress</button>
-    <button data-action="play">Play</button>
-    <button data-action="makeup">Makeup</button>
+  <h1>Welcome to Secret Cat World</h1>
+  <div class="input-area">
+    <input id="secretWord" placeholder="Enter the secret cat word...">
+    <button onclick="unlockCat()">Unlock</button>
   </div>
-  <p id="message"></p>
-  <button id="back-to-house" style="margin-top: 10px;">Back to Cat House</button>
-</section>
 
-<script>
-// Cat data with secret words and images
-const catsData = {
-  whiskers: {
-    name: "Whiskers",
-    img: "https://i.imgur.com/UJ5rwtG.png",
-    dressImg: "https://i.imgur.com/zR1F72U.png",
-    makeupImg: "https://i.imgur.com/9b9EohT.png",
-    state: { fed: false, bathed: false, slept: false, dressed: false, played: false, makeup: false }
-  },
-  mittens: {
-    name: "Mittens",
-    img: "https://i.imgur.com/Wv5s6Ah.png",
-    dressImg: "https://i.imgur.com/87H9Wur.png",
-    makeupImg: "https://i.imgur.com/OkXg9kH.png",
-    state: { fed: false, bathed: false, slept: false, dressed: false, played: false, makeup: false }
-  },
-  shadow: {
-    name: "Shadow",
-    img: "https://i.imgur.com/qZcRqCk.png",
-    dressImg: "https://i.imgur.com/7qvlNsS.png",
-    makeupImg: "https://i.imgur.com/I0NwwzL.png",
-    state: { fed: false, bathed: false, slept: false, dressed: false, played: false, makeup: false }
-  }
-};
+  <div class="actions hidden" id="catHouse">
+    <img id="catPic" class="cat-image" src="" alt="Your Cat">
+    <h2 id="catName">Meow!</h2>
+    <div class="cat-buttons">
+      <button onclick="feedCat()">Feed</button>
+      <button onclick="batheCat()">Give Bath</button>
+      <button onclick="sleepCat()">Sleep</button>
+      <button onclick="dressCat()">Dress</button>
+      <button onclick="playCat()">Play</button>
+      <button onclick="makeupCat()">Makeup</button>
+    </div>
+    <div class="cat-log" id="catLog">Choose something to do with your cat!</div>
+  </div>
 
-const unlockSection = document.getElementById('unlock-section');
-const houseSection = document.getElementById('house');
-const catRoomSection = document.getElementById('cat-room');
+  <script>
+    const cats = {
+      whiskers: {
+        name: "Whiskers",
+        img: "https://cdn.pixabay.com/photo/2017/01/31/20/13/cat-2022346_960_720.png",
+        log: []
+      },
+      fluffball: {
+        name: "Fluffball",
+        img: "https://cdn.pixabay.com/photo/2016/02/10/16/37/cat-1192026_960_720.jpg",
+        log: []
+      },
+      sparkle: {
+        name: "Sparkle",
+        img: "https://cdn.pixabay.com/photo/2016/02/10/16/37/cat-1192026_960_720.jpg",
+        log: []
+      }
+    };
 
-const secretWordInput = document.getElementById('secret-word');
-const unlockBtn = document.getElementById('unlock-btn');
-const unlockMsg = document.getElementById('unlock-msg');
+    let currentCat = null;
 
-const catsList = document.getElementById('cats-list');
-const backToUnlockBtn = document.getElementById('back-to-unlock');
-
-const catRoomTitle = document.getElementById('cat-room-title');
-const catImage = document.getElementById('cat-image');
-const roomButtons = document.querySelectorAll('#room-buttons button');
-const message = document.getElementById('message');
-const backToHouseBtn = document.getElementById('back-to-house');
-
-let unlockedCats = JSON.parse(localStorage.getItem('unlockedCats')) || {};
-let currentCatKey = null;
-
-// Save state to localStorage
-function saveState() {
-  localStorage.setItem('unlockedCats', JSON.stringify(unlockedCats));
-}
-
-// Load cat state or reset if missing
-function loadCatState(key) {
-  if (!unlockedCats[key]) {
-    unlockedCats[key] = JSON.parse(JSON.stringify(catsData[key].state));
-  }
-  return unlockedCats[key];
-}
-
-// Update cat image based on dress/makeup state
-function updateCatImage(key) {
-  const state = unlockedCats[key];
-  if(state.dressed && state.makeup){
-    catImage.src = catsData[key].makeupImg; // makeup + dress image
-  } else if(state.dressed){
-    catImage.src = catsData[key].dressImg; // dress image
-  } else {
-    catImage.src = catsData[key].img; // normal image
-  }
-}
-
-// Show cat house with all unlocked cats
-function showCatHouse() {
-  unlockSection.classList.add('hidden');
-  catRoomSection.classList.add('hidden');
-  houseSection.classList.remove('hidden');
-  catsList.innerHTML = '';
-
-  for (const key in unlockedCats) {
-    const cat = catsData[key];
-    const card = document.createElement('div');
-    card.className = 'cat-card';
-    card.innerHTML = `
-      <img src="${cat.img}" alt="${cat.name}" />
-      <div class="cat-name">${cat.name}</div>
-    `;
-    card.onclick = () => openCatRoom(key);
-    catsList.appendChild(card);
-  }
-}
-
-// Open cat room for interactions
-function openCatRoom(key) {
-  currentCatKey = key;
-  unlockSection.classList.add('hidden');
-  houseSection.classList.add('hidden');
-  catRoomSection.classList.remove('hidden');
-
-  const cat = catsData[key];
-  catRoomTitle.textContent = `Cat Room: ${cat.name}`;
-  loadCatState(key);
-  updateCatImage(key);
-  message.textContent = 'What do you want to do?';
-}
-
-// Unlock a new cat by secret word
-unlockBtn.onclick = () => {
-  const word = secretWordInput.value.trim().toLowerCase();
-  if (word in catsData) {
-    if (unlockedCats[word]) {
-      unlockMsg.textContent = `${catsData[word].name} is already unlocked!`;
-    } else {
-      unlockedCats[word] = JSON.parse(JSON.stringify(catsData[word].state));
-      saveState();
-      unlockMsg.textContent = `Congrats! You unlocked ${catsData[word].name}!`;
-      setTimeout(showCatHouse, 1000);
+    function unlockCat() {
+      const word = document.getElementById('secretWord').value.toLowerCase();
+      if (cats[word]) {
+        currentCat = cats[word];
+        document.getElementById('catPic').src = currentCat.img;
+        document.getElementById('catName').textContent = currentCat.name;
+        document.getElementById('catHouse').classList.remove('hidden');
+        updateLog("You found " + currentCat.name + "!");
+      } else {
+        alert("Wrong word! Try meowier ones.");
+      }
     }
-  } else {
-    unlockMsg.textContent = "No cat matches that secret word. Try again!";
-  }
-  secretWordInput.value = '';
-};
 
-// Room button actions
-roomButtons.forEach(button => {
-  button.onclick = () => {
-    if (!currentCatKey) return;
-    const action = button.dataset.action;
-    const state = unlockedCats[currentCatKey];
-
-    switch(action) {
-      case 'feed':
-        if (!state.fed) {
-          state.fed = true;
-          message.textContent = "You fed your kitty some yummy milk and fish!";
-        } else {
-          message.textContent = "Your kitty is already full!";
-        }
-        break;
-      case 'bath':
-        if (!state.bathed) {
-          state.bathed = true;
-          message.textContent = "Splish splash! Kitty had a bubbly bath!";
-        } else {
-          message.textContent = "Your kitty is already clean!";
-        }
-        break;
-      case 'sleep':
-        if (!state.slept) {
-          state.slept = true;
-          message.textContent = "Shhh... Kitty is sleeping peacefully.";
-        } else {
-          message.textContent = "Your kitty is well rested!";
-        }
-        break;
-      case 'dress':
-        if (!state.dressed) {
-          state.dressed = true;
-          message.textContent = "The kitty is now wearing a cute outfit!";
-        } else {
-          message.textContent = "Your kitty is already dressed!";
-        }
-        break;
-      case 'play':
-        if (!state.played) {
-          state.played = true;
-          message.textContent = "Toys everywhere! Kitty is chasing a yarn ball!";
-        } else {
-          message.textContent = "Your kitty had enough playtime!";
-        }
-        break;
-      case 'makeup':
-        if (!state.makeup) {
-          state.makeup = true;
-          message.textContent = "A little blush and sparkle... Fancy cat time!";
-        } else {
-          message.textContent = "Your kitty looks fabulous already!";
-        }
-        break;
+    function updateLog(text) {
+      const log = document.getElementById('catLog');
+      log.textContent = text;
+      if (currentCat) currentCat.log.push(text);
     }
-    updateCatImage(currentCatKey);
-    saveState();
-  };
-});
 
-// Back buttons
-backToHouseBtn.onclick = () => {
-  showCatHouse();
-};
+    function feedCat() {
+      updateLog("You fed " + currentCat.name + " some yummy treats!");
+    }
 
-backToUnlockBtn.onclick = () => {
-  houseSection.classList.add('hidden');
-  unlockSection.classList.remove('hidden');
-  unlockMsg.textContent = '';
-  secretWordInput.value = '';
-};
+    function batheCat() {
+      updateLog(currentCat.name + " had a sparkly clean bath!");
+    }
 
-// On page load - show unlock or house depending on saved cats
-window.onload = () => {
-  if(Object.keys(unlockedCats).length > 0){
-    showCatHouse();
-  } else {
-    unlockSection.classList.remove('hidden');
-  }
-};
-</script>
+    function sleepCat() {
+      updateLog(currentCat.name + " is now napping like royalty.");
+    }
 
+    function dressCat() {
+      updateLog(currentCat.name + " is now wearing a magical outfit!");
+    }
+
+    function playCat() {
+      updateLog(currentCat.name + " is chasing a sparkly yarn ball!");
+    }
+
+    function makeupCat() {
+      updateLog(currentCat.name + " got a glam new look with glitter!");
+    }
+  </script>
 </body>
-  </html>
+</html>
